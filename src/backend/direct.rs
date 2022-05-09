@@ -1,15 +1,15 @@
-use std::result::Result;
-use std::process::Command;
+use crate::backend;
+use crate::backend::command;
+use crate::backend::command::CommandResult;
+use crate::backend::Backend;
+use crate::platform::platform::Platform;
+use crate::platform::platforms::Platforms;
+use crate::provider::error::Error;
+use crate::provider::HandleFunc;
+use crate::provider::Output;
 
-use backend;
-use backend::Backend;
-use backend::command;
-use backend::command::CommandResult;
-use provider::error::Error;
-use provider::HandleFunc;
-use provider::Output;
-use platform::platform::Platform;
-use platform::platforms::Platforms;
+use std::process::Command;
+use std::result::Result;
 
 pub struct Direct;
 
@@ -20,9 +20,9 @@ impl Direct {
 }
 
 impl Backend for Direct {
-    fn detect_platform(&self) -> Option<Box<Platform>> {
-        let mut platforms = Platforms::new();
-        while let Some(p) = platforms.next() {
+    fn detect_platform(&self) -> Option<Box<dyn Platform>> {
+        let platforms = Platforms::new();
+        for p in platforms {
             match p.inline_detector() {
                 Some(m) => return Some(m),
                 None => (),
@@ -47,18 +47,18 @@ impl Backend for Direct {
     }
 
     fn run_command(&self, c: command::Command) -> Result<CommandResult, backend::error::Error> {
-        let out = try!(Command::new("sh").args(&["-c", &c.string]).output());
+        let out = Command::new("sh").args(&["-c", &c.string]).output()?;
 
         if !out.status.success() {
             let e = backend::error::CommandError {
                 code: out.status.code().unwrap(),
-                message: try!(String::from_utf8(out.stderr)),
+                message: String::from_utf8(out.stderr)?,
             };
             return Err(e.into());
         }
 
-        let stdout = try!(String::from_utf8(out.stdout));
-        let stderr = try!(String::from_utf8(out.stderr));
+        let stdout = String::from_utf8(out.stdout)?;
+        let stderr = String::from_utf8(out.stderr)?;
         let res = CommandResult {
             stdout: stdout.trim().to_string(),
             stderr: stderr.trim().to_string(),

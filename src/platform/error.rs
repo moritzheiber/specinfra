@@ -8,15 +8,6 @@ pub enum Error {
     ParseFloat(ParseFloatError),
 }
 
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Detect(ref err) => err.description(),
-            Error::ParseFloat(ref err) => err.description(),
-        }
-    }
-}
-
 impl From<ParseFloatError> for Error {
     fn from(err: ParseFloatError) -> Error {
         Error::ParseFloat(err)

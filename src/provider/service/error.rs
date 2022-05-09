@@ -1,22 +1,11 @@
-use std::error;
-use std::fmt;
+use crate::provider;
 
-use provider;
-use provider::service::inline::systemd;
+use std::fmt;
 
 #[derive(Debug)]
 pub enum Error {
-    DBus(systemd::dbus::Error),
-    DBusArgTypeMismatch(systemd::dbus::arg::TypeMismatchError),
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::DBus(ref err) => err.description(),
-            Error::DBusArgTypeMismatch(ref err) => err.description(),
-        }
-    }
+    DBus(dbus::Error),
+    DBusArgTypeMismatch(dbus::arg::TypeMismatchError),
 }
 
 impl fmt::Display for Error {
@@ -28,26 +17,26 @@ impl fmt::Display for Error {
     }
 }
 
-impl From<systemd::dbus::Error> for Error {
-    fn from(err: systemd::dbus::Error) -> Error {
+impl From<dbus::Error> for Error {
+    fn from(err: dbus::Error) -> Error {
         Error::DBus(err)
     }
 }
 
-impl From<systemd::dbus::arg::TypeMismatchError> for Error {
-    fn from(err: systemd::dbus::arg::TypeMismatchError) -> Error {
+impl From<dbus::arg::TypeMismatchError> for Error {
+    fn from(err: dbus::arg::TypeMismatchError) -> Error {
         Error::DBusArgTypeMismatch(err)
     }
 }
 
-impl From<systemd::dbus::Error> for provider::error::Error {
-    fn from(err: systemd::dbus::Error) -> provider::error::Error {
+impl From<dbus::Error> for provider::error::Error {
+    fn from(err: dbus::Error) -> provider::error::Error {
         Error::DBus(err).into()
     }
 }
 
-impl From<systemd::dbus::arg::TypeMismatchError> for provider::error::Error {
-    fn from(err: systemd::dbus::arg::TypeMismatchError) -> provider::error::Error {
+impl From<dbus::arg::TypeMismatchError> for provider::error::Error {
+    fn from(err: dbus::arg::TypeMismatchError) -> provider::error::Error {
         Error::DBusArgTypeMismatch(err).into()
     }
 }

@@ -1,4 +1,4 @@
-#![cfg(feature="test-port")]
+#![cfg(feature = "test-port")]
 extern crate specinfra;
 
 use specinfra::backend::direct::Direct;

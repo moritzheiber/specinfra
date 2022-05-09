@@ -1,10 +1,10 @@
-use provider::HandleFunc;
-use provider::port::inline::InlineProvider;
-use provider::port::shell::ShellProvider;
+use crate::provider::port::inline::InlineProvider;
+use crate::provider::port::shell::ShellProvider;
+use crate::provider::HandleFunc;
 
 pub struct PortProvider {
-    pub inline: Box<InlineProvider>,
-    pub shell: Box<ShellProvider>,
+    pub inline: Box<dyn InlineProvider>,
+    pub shell: Box<dyn ShellProvider>,
 }
 
 impl PortProvider {
@@ -15,7 +15,6 @@ impl PortProvider {
             inline: Box::new(move || i.is_listening(number)),
             shell: Box::new(move |b| s.is_listening(number, b)),
         })
-
     }
 }
 

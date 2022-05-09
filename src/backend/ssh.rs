@@ -1,27 +1,24 @@
-pub extern crate ssh2;
+use crate::backend;
+use crate::backend::command::Command;
+use crate::backend::command::CommandResult;
+use crate::backend::error::Error;
+use crate::backend::Backend;
+use crate::platform::platform::Platform;
+use crate::platform::platforms::Platforms;
+use crate::provider;
+use crate::provider::Output;
 
 use libc::c_char;
-use std::ffi::CStr;
 
+use std::ffi::CStr;
+use std::io::prelude::*;
+use std::net::TcpStream;
+use std::path::Path;
 use std::result::Result;
 use std::str;
-use std::net::TcpStream;
-use std::io::prelude::*;
-use std::path::Path;
-
-use backend;
-use backend::error::Error;
-use backend::Backend;
-use backend::command::Command;
-use backend::command::CommandResult;
-use provider;
-use provider::Output;
-use platform::platform::Platform;
-use platform::platforms::Platforms;
 
 pub struct SSH {
     session: ssh2::Session,
-    _tcp: TcpStream,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -76,34 +73,30 @@ impl<'a> SSHBuilder<'a> {
             None => host.to_string() + ":22",
         };
 
-        let tcp = try!(TcpStream::connect(remote_addr));
+        let tcp = TcpStream::connect(remote_addr)?;
         let mut session = ssh2::Session::new().unwrap();
-        try!(session.handshake(&tcp));
+        session.set_tcp_stream(tcp);
+        session.handshake()?;
 
         let user = self.user.unwrap();
 
         match self.key_file {
-            Some(k) => try!(session.userauth_pubkey_file(user, None, Path::new(k), None)),
-            None => {
-                match self.password {
-                    Some(p) => try!(session.userauth_password(user, p)),
-                    None => try!(session.userauth_agent(user)),
-                }
-            }
+            Some(k) => session.userauth_pubkey_file(user, None, Path::new(k), None)?,
+            None => match self.password {
+                Some(p) => session.userauth_password(user, p)?,
+                None => session.userauth_agent(user)?,
+            },
         }
 
-        let ssh = SSH {
-            session: session,
-            _tcp: tcp,
-        };
+        let ssh = SSH { session };
         Ok(ssh)
     }
 }
 
 impl Backend for SSH {
-    fn detect_platform(&self) -> Option<Box<Platform>> {
-        let mut platforms = Platforms::new();
-        while let Some(p) = platforms.next() {
+    fn detect_platform(&self) -> Option<Box<dyn Platform>> {
+        let platforms = Platforms::new();
+        for p in platforms {
             match p.shell_detector(self) {
                 Some(m) => return Some(m),
                 None => (),
@@ -112,14 +105,15 @@ impl Backend for SSH {
         None
     }
 
-    fn handle(&self,
-              handle_func: Box<provider::HandleFunc>)
-              -> Result<Output, provider::error::Error> {
+    fn handle(
+        &self,
+        handle_func: Box<provider::HandleFunc>,
+    ) -> Result<Output, provider::error::Error> {
         (handle_func.shell)(self)
     }
 
     fn run_command(&self, c: Command) -> Result<CommandResult, backend::error::Error> {
-        let mut chan = try!(self.session.channel_session());
+        let mut chan = self.session.channel_session()?;
         chan.exec(&c.string).unwrap();
 
         let mut stdout = String::new();
@@ -128,15 +122,15 @@ impl Backend for SSH {
         let mut stderr = String::new();
         chan.stderr().read_to_string(&mut stderr).unwrap();
 
-        let code = try!(chan.exit_status());
+        let code = chan.exit_status()?;
 
-        let success = if code == 0 { true } else { false };
+        let success = code == 0;
 
         let res = CommandResult {
             stdout: stdout.trim().to_string(),
             stderr: stderr.trim().to_string(),
-            code: code,
-            success: success,
+            code,
+            success,
         };
 
         Ok(res)
@@ -170,9 +164,10 @@ pub extern "C" fn backend_ssh_builder_free(ptr: *mut SSHBuilder) {
 }
 
 #[no_mangle]
-pub extern "C" fn backend_ssh_builder_user(ptr: *mut SSHBuilder,
-                                           u: *const c_char)
-                                           -> *mut SSHBuilder {
+pub extern "C" fn backend_ssh_builder_user(
+    ptr: *mut SSHBuilder,
+    u: *const c_char,
+) -> *mut SSHBuilder {
     let b = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -187,9 +182,10 @@ pub extern "C" fn backend_ssh_builder_user(ptr: *mut SSHBuilder,
 }
 
 #[no_mangle]
-pub extern "C" fn backend_ssh_builder_password(ptr: *mut SSHBuilder,
-                                               p: *const c_char)
-                                               -> *mut SSHBuilder {
+pub extern "C" fn backend_ssh_builder_password(
+    ptr: *mut SSHBuilder,
+    p: *const c_char,
+) -> *mut SSHBuilder {
     let b = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -204,9 +200,10 @@ pub extern "C" fn backend_ssh_builder_password(ptr: *mut SSHBuilder,
 }
 
 #[no_mangle]
-pub extern "C" fn backend_ssh_builder_key_file(ptr: *mut SSHBuilder,
-                                               k: *const c_char)
-                                               -> *mut SSHBuilder {
+pub extern "C" fn backend_ssh_builder_key_file(
+    ptr: *mut SSHBuilder,
+    k: *const c_char,
+) -> *mut SSHBuilder {
     let b = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr

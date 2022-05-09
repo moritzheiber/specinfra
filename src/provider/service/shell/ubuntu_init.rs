@@ -1,17 +1,17 @@
-use std::result::Result;
+use crate::backend::command::Command;
+use crate::backend::command::CommandResult;
+use crate::backend::Backend;
+use crate::provider::error::Error;
+use crate::provider::service::shell::ShellProvider;
+use crate::provider::Output;
 
-use backend::Backend;
-use backend::command::Command;
-use backend::command::CommandResult;
-use provider::error::Error;
-use provider::Output;
-use provider::service::shell::ShellProvider;
+use std::result::Result;
 
 #[derive(Clone, Debug)]
 pub struct UbuntuInit;
 
 impl ShellProvider for UbuntuInit {
-    fn is_running(&self, name: &str, b: &Backend) -> Result<Output, Error> {
+    fn is_running(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
         let c = Command::new(&format!("service {} status", name));
         let res: CommandResult;
 
@@ -30,8 +30,8 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(true))
     }
 
-    fn is_enabled(&self, name: &str, b: &Backend) -> Result<Output, Error> {
-        let mut c = Command::new("ls /etc/rc3.d/".into());
+    fn is_enabled(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
+        let mut c = Command::new("ls /etc/rc3.d/");
         c.pipe(&format!("grep -- '^S..{}$'", name));
         c.or(&format!("grep '^\\s*start on' /etc/init/{}.conf", name));
 
@@ -43,7 +43,7 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(success))
     }
 
-    fn disable(&self, name: &str, b: &Backend) -> Result<Output, Error> {
+    fn disable(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
         let c = Command::new(&format!("update-rc.d -f {} remove", name));
 
         let success = match b.run_command(c) {
@@ -54,7 +54,7 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(success))
     }
 
-    fn enable(&self, name: &str, b: &Backend) -> Result<Output, Error> {
+    fn enable(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
         let c = Command::new(&format!("update-rc.d {} defaults", name));
 
         let success = match b.run_command(c) {
@@ -65,7 +65,7 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(success))
     }
 
-    fn start(&self, name: &str, b: &Backend) -> Result<Output, Error> {
+    fn start(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
         let c = Command::new(&format!("service {} start", name));
 
         let success = match b.run_command(c) {
@@ -76,7 +76,7 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(success))
     }
 
-    fn stop(&self, name: &str, b: &Backend) -> Result<Output, Error> {
+    fn stop(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
         let c = Command::new(&format!("service {} stop", name));
 
         let success = match b.run_command(c) {
@@ -87,7 +87,7 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(success))
     }
 
-    fn restart(&self, name: &str, b: &Backend) -> Result<Output, Error> {
+    fn restart(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
         let c = Command::new(&format!("service {} restart", name));
 
         let success = match b.run_command(c) {
@@ -98,7 +98,7 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(success))
     }
 
-    fn reload(&self, name: &str, b: &Backend) -> Result<Output, Error> {
+    fn reload(&self, name: &str, b: &dyn Backend) -> Result<Output, Error> {
         let c = Command::new(&format!("service {} reload", name));
 
         let success = match b.run_command(c) {
@@ -109,7 +109,7 @@ impl ShellProvider for UbuntuInit {
         Ok(Output::Bool(success))
     }
 
-    fn box_clone(&self) -> Box<ShellProvider> {
+    fn box_clone(&self) -> Box<dyn ShellProvider> {
         Box::new((*self).clone())
     }
 }

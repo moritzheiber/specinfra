@@ -1,16 +1,15 @@
+use crate::backend::Backend;
+use crate::provider::error::Error;
+use crate::provider::error::HandleFuncNotDefined;
+use crate::provider::file::Whom;
+use crate::provider::Output;
+
 use std::fmt::Debug;
-
-use provider::error::Error;
-use provider::error::HandleFuncNotDefined;
-use provider::file::Whom;
-
-use provider::Output;
-use backend::Backend;
 
 // See https://users.rust-lang.org/t/solved-is-it-possible-to-clone-a-boxed-trait-object/1714/6
 
 pub trait ShellProvider: Debug {
-    fn mode(&self, &str, &Backend) -> Result<Output, Error> {
+    fn mode(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "mode".to_string(),
@@ -18,7 +17,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn size(&self, &str, &Backend) -> Result<Output, Error> {
+    fn size(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "size".to_string(),
@@ -26,7 +25,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_file(&self, &str, &Backend) -> Result<Output, Error> {
+    fn is_file(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_file".to_string(),
@@ -34,7 +33,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_directory(&self, &str, &Backend) -> Result<Output, Error> {
+    fn is_directory(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_directory".to_string(),
@@ -42,7 +41,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_block_device(&self, &str, &Backend) -> Result<Output, Error> {
+    fn is_block_device(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_block_device".to_string(),
@@ -50,7 +49,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_character_device(&self, &str, &Backend) -> Result<Output, Error> {
+    fn is_character_device(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_character_device".to_string(),
@@ -58,7 +57,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_pipe(&self, &str, &Backend) -> Result<Output, Error> {
+    fn is_pipe(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_pipe".to_string(),
@@ -66,7 +65,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_socket(&self, &str, &Backend) -> Result<Output, Error> {
+    fn is_socket(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_socket".to_string(),
@@ -74,7 +73,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_symlink(&self, &str, &Backend) -> Result<Output, Error> {
+    fn is_symlink(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_symlink".to_string(),
@@ -82,7 +81,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn exist(&self, &str, &Backend) -> Result<Output, Error> {
+    fn exist(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "exist".to_string(),
@@ -90,7 +89,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn contents(&self, &str, &Backend) -> Result<Output, Error> {
+    fn contents(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "contents".to_string(),
@@ -98,7 +97,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn owner(&self, &str, &Backend) -> Result<Output, Error> {
+    fn owner(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "owner".to_string(),
@@ -106,7 +105,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn group(&self, &str, &Backend) -> Result<Output, Error> {
+    fn group(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "group".to_string(),
@@ -114,7 +113,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn linked_to(&self, &str, &Backend) -> Result<Output, Error> {
+    fn linked_to(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "linked_to".to_string(),
@@ -122,7 +121,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_readable(&self, &str, Option<&Whom>, &Backend) -> Result<Output, Error> {
+    fn is_readable(&self, _: &str, _: Option<&Whom>, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_readable".to_string(),
@@ -130,7 +129,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn is_writable(&self, &str, Option<&Whom>, &Backend) -> Result<Output, Error> {
+    fn is_writable(&self, _: &str, _: Option<&Whom>, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "is_writable".to_string(),
@@ -138,7 +137,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn md5sum(&self, &str, &Backend) -> Result<Output, Error> {
+    fn md5sum(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "md5sum".to_string(),
@@ -146,7 +145,7 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn sha256sum(&self, &str, &Backend) -> Result<Output, Error> {
+    fn sha256sum(&self, _: &str, _: &dyn Backend) -> Result<Output, Error> {
         let e = HandleFuncNotDefined {
             provider: format!("{:?}", self),
             func: "sha256sum".to_string(),
@@ -154,16 +153,16 @@ pub trait ShellProvider: Debug {
         Err(e.into())
     }
 
-    fn box_clone(&self) -> Box<ShellProvider>;
+    fn box_clone(&self) -> Box<dyn ShellProvider>;
 }
 
-impl Clone for Box<ShellProvider> {
-    fn clone(&self) -> Box<ShellProvider> {
+impl Clone for Box<dyn ShellProvider> {
+    fn clone(&self) -> Box<dyn ShellProvider> {
         self.box_clone()
     }
 }
 
-pub mod unix;
 pub mod bsd;
 pub mod linux;
 pub mod null;
+pub mod unix;

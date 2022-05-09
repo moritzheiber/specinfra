@@ -1,9 +1,9 @@
-#![cfg(feature="test-service")]
+#![cfg(feature = "test-service")]
 extern crate specinfra;
 
 use specinfra::backend;
-use specinfra::Specinfra;
 use specinfra::provider::service::inline::null::Null;
+use specinfra::Specinfra;
 
 #[test]
 fn service_resource_with_inline_provider() {

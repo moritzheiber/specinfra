@@ -5,9 +5,9 @@ use std::num;
 
 use nix;
 
-use backend;
-use provider::OutputError;
-use provider::service;
+use crate::backend;
+use crate::provider::service;
+use crate::provider::OutputError;
 
 #[derive(Debug)]
 pub enum Error {
@@ -19,21 +19,6 @@ pub enum Error {
     Output(OutputError),
     Backend(backend::error::Error),
     Service(service::error::Error),
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::HandleFuncNotDefined(ref err) => err.description(),
-            Error::Nix(ref err) => err.description(),
-            Error::Io(ref err) => err.description(),
-            Error::String(ref err) => err.description(),
-            Error::ParseInt(ref err) => err.description(),
-            Error::Output(ref err) => err.description(),
-            Error::Backend(ref err) => err.description(),
-            Error::Service(ref err) => err.description(),
-        }
-    }
 }
 
 impl fmt::Display for Error {

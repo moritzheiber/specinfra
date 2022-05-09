@@ -1,14 +1,14 @@
-use provider::HandleFunc;
-use provider::service::inline::InlineProvider;
-use provider::service::shell::ShellProvider;
+use crate::provider::service::inline::InlineProvider;
+use crate::provider::service::shell::ShellProvider;
+use crate::provider::HandleFunc;
 
 pub struct ServiceProvider {
-    pub inline: Box<InlineProvider>,
-    pub shell: Box<ShellProvider>,
+    pub inline: Box<dyn InlineProvider>,
+    pub shell: Box<dyn ShellProvider>,
 }
 
 impl ServiceProvider {
-    pub fn new(i: Box<InlineProvider>, s: Box<ShellProvider>) -> ServiceProvider {
+    pub fn new(i: Box<dyn InlineProvider>, s: Box<dyn ShellProvider>) -> ServiceProvider {
         ServiceProvider {
             inline: i,
             shell: s,

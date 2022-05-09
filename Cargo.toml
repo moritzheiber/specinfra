@@ -1,20 +1,24 @@
 [package]
 name = "specinfra"
 version = "0.3.0"
-authors = ["Gosuke Miyashita <gosukenator@gmail.com>"]
+authors = [
+    "Gosuke Miyashita <gosukenator@gmail.com>",
+    "Moritz Heiber <hello@heiber.im>"
+]
 license = "MIT"
 homepage = "https://github.com/libspecinfra/specinfra"
 description = "This is the Rust implementation of Ruby specinfra gem"
+edition = "2021"
 
 [dependencies]
 uname = "0.1.1"
 libc = "0.2.30"
-users = "0.5.0"
-ssh2 = { version = "0.3.1", optional = true }
-md5 = "0.3.5"
-sha2 = "0.6.0"
-nix = "0.9.0"
-dbus = { version = "0.5.4", optional = true }
+users = "0.11.0"
+ssh2 = { version = "0.9.3", optional = true }
+md5 = "0.7"
+sha2 = "0.10.2"
+nix = "0.24.1"
+dbus = "0.9.5"
 version-compare = "0.1.0"
 
 [lib]
@@ -23,7 +27,6 @@ crate-type = ["dylib", "rlib"]
 
 [features]
 default = ["backend-ssh"]
-inline-systemd = ["dbus"]
 backend-ssh = ["ssh2"]
 test-service = []
 test-ssh = []

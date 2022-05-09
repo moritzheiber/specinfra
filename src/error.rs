@@ -1,7 +1,6 @@
-use platform;
-use provider;
+use crate::platform;
+use crate::provider;
 
-use std::error;
 use std::fmt;
 
 #[derive(Debug)]
@@ -15,15 +14,6 @@ impl fmt::Display for Error {
         match *self {
             Error::Platform(ref err) => err.fmt(f),
             Error::Provider(ref err) => err.fmt(f),
-        }
-    }
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Platform(ref err) => err.description(),
-            Error::Provider(ref err) => err.description(),
         }
     }
 }

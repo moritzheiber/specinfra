@@ -1,6 +1,6 @@
-use provider::HandleFunc;
-use provider::file::inline::InlineProvider;
-use provider::file::shell::ShellProvider;
+use crate::provider::file::inline::InlineProvider;
+use crate::provider::file::shell::ShellProvider;
+use crate::provider::HandleFunc;
 
 pub enum Whom {
     Owner,
@@ -10,12 +10,12 @@ pub enum Whom {
 }
 
 pub struct FileProvider {
-    pub inline: Box<InlineProvider>,
-    pub shell: Box<ShellProvider>,
+    pub inline: Box<dyn InlineProvider>,
+    pub shell: Box<dyn ShellProvider>,
 }
 
 impl FileProvider {
-    pub fn new(i: Box<InlineProvider>, s: Box<ShellProvider>) -> FileProvider {
+    pub fn new(i: Box<dyn InlineProvider>, s: Box<dyn ShellProvider>) -> FileProvider {
         FileProvider {
             inline: i,
             shell: s,
@@ -189,9 +189,7 @@ impl FileProvider {
         let s = self.shell.clone();
         Box::new(HandleFunc {
             inline: Box::new(move || i.is_readable(name, Some(&Whom::User(user.to_string())))),
-            shell: Box::new(move |b| {
-                s.is_readable(name, Some(&Whom::User(user.to_string())), b)
-            }),
+            shell: Box::new(move |b| s.is_readable(name, Some(&Whom::User(user.to_string())), b)),
         })
     }
 
@@ -236,9 +234,7 @@ impl FileProvider {
         let s = self.shell.clone();
         Box::new(HandleFunc {
             inline: Box::new(move || i.is_writable(name, Some(&Whom::User(user.to_string())))),
-            shell: Box::new(move |b| {
-                s.is_writable(name, Some(&Whom::User(user.to_string())), b)
-            }),
+            shell: Box::new(move |b| s.is_writable(name, Some(&Whom::User(user.to_string())), b)),
         })
     }
 

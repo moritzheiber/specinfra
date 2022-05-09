@@ -1,16 +1,16 @@
 use std::result::Result;
 
-use backend::Backend;
-use backend::command::Command;
-use provider::error::Error;
-use provider::Output;
-use provider::port::shell::ShellProvider;
+use crate::backend::command::Command;
+use crate::backend::Backend;
+use crate::provider::error::Error;
+use crate::provider::port::shell::ShellProvider;
+use crate::provider::Output;
 
 #[derive(Clone, Debug)]
 pub struct Netstat;
 
 impl ShellProvider for Netstat {
-    fn is_listening(&self, number: usize, b: &Backend) -> Result<Output, Error> {
+    fn is_listening(&self, number: usize, b: &dyn Backend) -> Result<Output, Error> {
         let mut c = Command::new("netstat -tunl");
         c.pipe(&format!("grep -- :{}", number));
 
@@ -21,7 +21,7 @@ impl ShellProvider for Netstat {
         Ok(Output::Bool(success))
     }
 
-    fn box_clone(&self) -> Box<ShellProvider> {
+    fn box_clone(&self) -> Box<dyn ShellProvider> {
         Box::new((*self).clone())
     }
 }

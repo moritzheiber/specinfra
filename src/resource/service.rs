@@ -1,22 +1,21 @@
-use libc::{c_char, int32_t};
+use libc::c_char;
 use std;
 use std::ffi::CString;
-use std::error::Error;
 
-use backend::Backend;
-use provider::error;
-use provider::Output;
-use provider::service::ServiceProvider;
+use crate::backend::Backend;
+use crate::provider::error;
+use crate::provider::service::ServiceProvider;
+use crate::provider::Output;
 
 pub struct Service<'a> {
     name: &'static str,
-    backend: &'a Backend,
+    backend: &'a dyn Backend,
     provider: &'a ServiceProvider,
     error: Option<error::Error>,
 }
 
 impl<'a> Service<'a> {
-    pub fn new(n: &'static str, b: &'a Backend, p: &'a ServiceProvider) -> Service<'a> {
+    pub fn new(n: &'static str, b: &'a dyn Backend, p: &'a ServiceProvider) -> Service<'a> {
         Service {
             name: n,
             backend: b,
@@ -94,135 +93,183 @@ pub extern "C" fn resource_service_error_description(ptr: *const Service) -> *co
     };
 
     match s.error {
-        Some(ref e) => CString::new(e.description()).unwrap().into_raw(),
+        Some(ref e) => CString::new(e.to_string()).unwrap().into_raw(),
         None => std::ptr::null(),
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_is_running(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_is_running(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.is_running() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_is_enabled(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_is_enabled(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.is_enabled() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_enable(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_enable(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.enable() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_disable(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_disable(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.disable() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_reload(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_reload(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.reload() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_restart(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_restart(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.restart() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_start(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_start(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.start() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_service_stop(ptr: *mut Service) -> int32_t {
+pub extern "C" fn resource_service_stop(ptr: *mut Service) -> i32 {
     let s = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match s.stop() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             s.error = Some(e);
-            return -1;
+            -1
         }
     }
 }

@@ -1,30 +1,16 @@
+use std::env;
 use std::error;
-use std::string;
 use std::fmt;
 use std::io;
-use std::env;
-
-use backend::ssh;
+use std::string;
 
 #[derive(Debug)]
 pub enum Error {
     FromUtf8(string::FromUtf8Error),
     Io(io::Error),
-    Ssh(ssh::ssh2::Error),
+    Ssh(ssh2::Error),
     Env(env::VarError),
     Command(CommandError),
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::FromUtf8(ref err) => err.description(),
-            Error::Io(ref err) => err.description(),
-            Error::Ssh(ref err) => err.description(),
-            Error::Env(ref err) => err.description(),
-            Error::Command(ref err) => err.description(),
-        }
-    }
 }
 
 impl fmt::Display for Error {
@@ -51,8 +37,8 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<ssh::ssh2::Error> for Error {
-    fn from(err: ssh::ssh2::Error) -> Error {
+impl From<ssh2::Error> for Error {
+    fn from(err: ssh2::Error) -> Error {
         Error::Ssh(err)
     }
 }

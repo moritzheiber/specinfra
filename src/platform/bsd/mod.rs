@@ -1,13 +1,13 @@
 pub mod darwin;
 
-use platform::base_platform::BasePlatform;
-use platform::platform::Platform;
-use platform::bsd::darwin::Darwin;
+use crate::platform::base_platform::BasePlatform;
+use crate::platform::bsd::darwin::Darwin;
+use crate::platform::platform::Platform;
 
 #[derive(Clone)]
 pub struct Bsd {
     curr: usize,
-    platforms: Vec<Box<Platform>>,
+    platforms: Vec<Box<dyn Platform>>,
 }
 
 impl BasePlatform for Bsd {
@@ -24,7 +24,7 @@ impl BasePlatform for Bsd {
 }
 
 impl Iterator for Bsd {
-    type Item = Box<Platform>;
+    type Item = Box<dyn Platform>;
     fn next(&mut self) -> Option<Self::Item> {
         if self.curr < self.platforms.len() {
             let curr = self.curr;

@@ -1,18 +1,17 @@
-use platform::base_platform::BasePlatform;
-use platform::platform::Platform;
-use platform::linux::redhat::RedHat;
-use platform::linux::ubuntu::Ubuntu;
-
+use crate::platform::base_platform::BasePlatform;
+use crate::platform::linux::redhat::RedHat;
+use crate::platform::linux::ubuntu::Ubuntu;
+use crate::platform::platform::Platform;
 
 #[derive(Clone)]
 pub struct Linux {
     curr: usize,
-    platforms: Vec<Box<Platform>>,
+    platforms: Vec<Box<dyn Platform>>,
 }
 
 impl BasePlatform for Linux {
     fn new() -> Linux {
-        let mut p: Vec<Box<Platform>> = Vec::new();
+        let mut p: Vec<Box<dyn Platform>> = Vec::new();
         p.push(Box::new(Ubuntu::new()));
         p.push(Box::new(RedHat::new()));
 
@@ -28,7 +27,7 @@ impl BasePlatform for Linux {
 }
 
 impl Iterator for Linux {
-    type Item = Box<Platform>;
+    type Item = Box<dyn Platform>;
     fn next(&mut self) -> Option<Self::Item> {
         if self.curr < self.platforms.len() {
             let curr = self.curr;

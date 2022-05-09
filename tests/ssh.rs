@@ -1,4 +1,4 @@
-#![cfg(feature="test-ssh")]
+#![cfg(feature = "test-ssh")]
 extern crate specinfra;
 
 use specinfra::backend::ssh::SSHBuilder;

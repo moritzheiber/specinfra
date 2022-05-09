@@ -1,10 +1,10 @@
-use provider::service::shell::ShellProvider;
+use crate::provider::service::shell::ShellProvider;
 
 #[derive(Clone, Debug)]
 pub struct Null;
 
 impl ShellProvider for Null {
-    fn box_clone(&self) -> Box<ShellProvider> {
+    fn box_clone(&self) -> Box<dyn ShellProvider> {
         Box::new((*self).clone())
     }
 }

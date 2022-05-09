@@ -1,17 +1,18 @@
-use provider::HandleFunc;
-use self::shell::ShellProvider;
-use self::inline::InlineProvider;
+use crate::provider::package::inline::InlineProvider;
+use crate::provider::package::shell::ShellProvider;
+use crate::provider::HandleFunc;
 
 pub struct PackageProvider {
-    pub inline: Box<InlineProvider>,
-    pub shell: Box<ShellProvider>,
+    pub inline: Box<dyn InlineProvider>,
+    pub shell: Box<dyn ShellProvider>,
 }
 
 impl PackageProvider {
-    pub fn is_installed(&self,
-                        name: &'static str,
-                        version: Option<&'static str>)
-                        -> Box<HandleFunc> {
+    pub fn is_installed(
+        &self,
+        name: &'static str,
+        version: Option<&'static str>,
+    ) -> Box<HandleFunc> {
         let i = self.inline.clone();
         let s = self.shell.clone();
         Box::new(HandleFunc {
@@ -48,5 +49,5 @@ impl PackageProvider {
     }
 }
 
-pub mod shell;
 pub mod inline;
+pub mod shell;

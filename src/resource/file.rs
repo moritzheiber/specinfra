@@ -1,23 +1,22 @@
-use libc::{c_char, int32_t, int64_t};
-use std::ffi::CString;
-use std::ffi::CStr;
+use libc::c_char;
 use std;
-use std::error::Error;
+use std::ffi::CStr;
+use std::ffi::CString;
 
-use backend::Backend;
-use provider::error;
-use provider::Output;
-use provider::file::FileProvider;
+use crate::backend::Backend;
+use crate::provider::error;
+use crate::provider::file::FileProvider;
+use crate::provider::Output;
 
 pub struct File<'a> {
     name: &'static str,
-    backend: &'a Backend,
+    backend: &'a dyn Backend,
     provider: &'a FileProvider,
     error: Option<error::Error>,
 }
 
 impl<'a> File<'a> {
-    pub fn new(n: &'static str, b: &'a Backend, p: &'a FileProvider) -> File<'a> {
+    pub fn new(n: &'static str, b: &'a dyn Backend, p: &'a FileProvider) -> File<'a> {
         File {
             name: n,
             backend: b,
@@ -203,14 +202,13 @@ pub extern "C" fn resource_file_error_description(ptr: *const File) -> *const c_
     };
 
     match f.error {
-        Some(ref e) => CString::new(e.description()).unwrap().into_raw(),
+        Some(ref e) => CString::new(e.to_string()).unwrap().into_raw(),
         None => std::ptr::null(),
     }
 }
 
-
 #[no_mangle]
-pub extern "C" fn resource_file_mode(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_mode(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -218,134 +216,182 @@ pub extern "C" fn resource_file_mode(ptr: *mut File) -> int32_t {
 
     f.mode().unwrap_or_else(|e| {
         f.error = Some(e);
-        return -1;
+        -1
     })
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_file(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_file(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_file() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_exist(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_exist(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.exist() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_directory(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_directory(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_directory() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_block_device(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_block_device(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_block_device() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_character_device(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_character_device(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_character_device() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_pipe(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_pipe(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_pipe() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_socket(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_socket(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_socket() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_symlink(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_symlink(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_symlink() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
@@ -399,71 +445,95 @@ pub extern "C" fn resource_file_group(ptr: *mut File) -> *const c_char {
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_readable(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_readable(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_readable() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_readable_by_owner(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_readable_by_owner(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_readable_by_owner() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_readable_by_group(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_readable_by_group(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_readable_by_group() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_readable_by_others(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_readable_by_others(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_readable_by_others() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_readable_by_user(ptr: *mut File, u: *const c_char) -> int32_t {
+pub extern "C" fn resource_file_is_readable_by_user(ptr: *mut File, u: *const c_char) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -476,80 +546,110 @@ pub extern "C" fn resource_file_is_readable_by_user(ptr: *mut File, u: *const c_
 
     let user = c_str.to_str().unwrap();
     match f.is_readable_by_user(user) {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_writable(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_writable(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_writable() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_writable_by_owner(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_writable_by_owner(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_writable_by_owner() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_writable_by_group(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_writable_by_group(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_writable_by_group() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_writable_by_others(ptr: *mut File) -> int32_t {
+pub extern "C" fn resource_file_is_writable_by_others(ptr: *mut File) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
     };
 
     match f.is_writable_by_others() {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_is_writable_by_user(ptr: *mut File, u: *const c_char) -> int32_t {
+pub extern "C" fn resource_file_is_writable_by_user(ptr: *mut File, u: *const c_char) -> i32 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -562,10 +662,16 @@ pub extern "C" fn resource_file_is_writable_by_user(ptr: *mut File, u: *const c_
 
     let user = c_str.to_str().unwrap();
     match f.is_writable_by_user(user) {
-        Ok(f) => if f { 1 } else { 0 },
+        Ok(f) => {
+            if f {
+                1
+            } else {
+                0
+            }
+        }
         Err(e) => {
             f.error = Some(e);
-            return -1;
+            -1
         }
     }
 }
@@ -603,7 +709,7 @@ pub extern "C" fn resource_file_sha256sum(ptr: *mut File) -> *const c_char {
 }
 
 #[no_mangle]
-pub extern "C" fn resource_file_size(ptr: *mut File) -> int64_t {
+pub extern "C" fn resource_file_size(ptr: *mut File) -> i64 {
     let f = unsafe {
         assert!(!ptr.is_null());
         &mut *ptr
@@ -611,7 +717,7 @@ pub extern "C" fn resource_file_size(ptr: *mut File) -> int64_t {
 
     f.size().unwrap_or_else(|e| {
         f.error = Some(e);
-        return -1;
+        -1
     })
 }
 

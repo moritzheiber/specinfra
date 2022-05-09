@@ -1,16 +1,16 @@
-use platform::platform::Platform;
-use platform::base_platform::BasePlatform;
-use platform::bsd;
-use platform::linux;
+use crate::platform::base_platform::BasePlatform;
+use crate::platform::bsd;
+use crate::platform::linux;
+use crate::platform::platform::Platform;
 
 pub struct Platforms {
     curr: usize,
-    base_platforms: Vec<Box<BasePlatform<Item = Box<Platform>>>>,
+    base_platforms: Vec<Box<dyn BasePlatform<Item = Box<dyn Platform>>>>,
 }
 
 impl Platforms {
     pub fn new() -> Platforms {
-        let mut p: Vec<Box<BasePlatform<Item = Box<Platform>>>> = Vec::new();
+        let mut p: Vec<Box<dyn BasePlatform<Item = Box<dyn Platform>>>> = Vec::new();
         p.push(Box::new(bsd::Bsd::new()));
         p.push(Box::new(linux::Linux::new()));
 
@@ -22,7 +22,7 @@ impl Platforms {
 }
 
 impl Iterator for Platforms {
-    type Item = Box<Platform>;
+    type Item = Box<dyn Platform>;
     fn next(&mut self) -> Option<Self::Item> {
         if self.curr < self.base_platforms.len() {
             match self.base_platforms[self.curr].next() {

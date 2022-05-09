@@ -1,21 +1,22 @@
-use backend::Backend;
-use provider::error;
-use provider::Output;
-use provider::package::PackageProvider;
+use crate::backend::Backend;
+use crate::provider::error;
+use crate::provider::package::PackageProvider;
+use crate::provider::Output;
 
 pub struct Package<'a> {
     name: &'static str,
     version: Option<&'static str>,
-    backend: &'a Backend,
+    backend: &'a dyn Backend,
     provider: &'a PackageProvider,
 }
 
 impl<'a> Package<'a> {
-    pub fn new(n: &'static str,
-               v: Option<&'static str>,
-               b: &'a Backend,
-               p: &'a PackageProvider)
-               -> Package<'a> {
+    pub fn new(
+        n: &'static str,
+        v: Option<&'static str>,
+        b: &'a dyn Backend,
+        p: &'a PackageProvider,
+    ) -> Package<'a> {
         Package {
             name: n,
             version: v,

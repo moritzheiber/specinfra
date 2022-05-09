@@ -1,8 +1,8 @@
-use std::result::Result;
 use std::error::Error;
 use std::fmt;
+use std::result::Result;
 
-use backend::Backend;
+use crate::backend::Backend;
 
 pub struct Providers {
     pub file: Box<file::FileProvider>,
@@ -12,8 +12,8 @@ pub struct Providers {
 }
 
 pub struct HandleFunc {
-    pub inline: Box<Fn() -> Result<Output, error::Error>>,
-    pub shell: Box<Fn(&Backend) -> Result<Output, error::Error>>,
+    pub inline: Box<dyn Fn() -> Result<Output, error::Error>>,
+    pub shell: Box<dyn Fn(&dyn Backend) -> Result<Output, error::Error>>,
 }
 
 pub enum Output {
@@ -70,7 +70,7 @@ impl Output {
 
     pub fn to_string(o: Output) -> Result<String, error::Error> {
         match o {
-            Output::Text(s) => Ok(s),
+            Output::Text(s) => Ok(s.to_string()),
             _ => Err(OutputError.into()),
         }
     }

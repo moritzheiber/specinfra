@@ -1,19 +1,19 @@
-use std::result::Result;
+use crate::backend::Backend;
+use crate::platform::error::Error;
+use crate::platform::platform::Platform;
+use crate::provider::file;
+use crate::provider::file::FileProvider;
+use crate::provider::package;
+use crate::provider::package::PackageProvider;
+use crate::provider::port;
+use crate::provider::port::PortProvider;
+use crate::provider::service;
+use crate::provider::service::ServiceProvider;
+use crate::provider::Providers;
 
 use uname;
 
-use backend::Backend;
-use platform::platform::Platform;
-use platform::error::Error;
-use provider::Providers;
-use provider::file;
-use provider::file::FileProvider;
-use provider::service;
-use provider::service::ServiceProvider;
-use provider::package;
-use provider::package::PackageProvider;
-use provider::port;
-use provider::port::PortProvider;
+use std::result::Result;
 
 #[derive(Clone, Debug)]
 pub struct Darwin {
@@ -29,7 +29,7 @@ impl Platform for Darwin {
         }
     }
 
-    fn inline_detector(&self) -> Option<Box<Platform>> {
+    fn inline_detector(&self) -> Option<Box<dyn Platform>> {
         let u = match uname::uname() {
             Ok(u) => u,
             Err(_) => return None,
@@ -46,7 +46,7 @@ impl Platform for Darwin {
         }
     }
 
-    fn shell_detector(&self, b: &Backend) -> Option<Box<Platform>> {
+    fn shell_detector(&self, b: &dyn Backend) -> Option<Box<dyn Platform>> {
         let res = b.run_command("uname -sr".into()).unwrap();
         let mut iter = res.stdout.split_whitespace();
         let sysname = iter.next().unwrap();

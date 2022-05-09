@@ -1,19 +1,19 @@
+use crate::backend::Backend;
+use crate::platform::error::Error;
+use crate::platform::platform::Platform;
+use crate::provider::file;
+use crate::provider::file::FileProvider;
+use crate::provider::package;
+use crate::provider::package::PackageProvider;
+use crate::provider::port;
+use crate::provider::port::PortProvider;
+use crate::provider::service;
+use crate::provider::service::ServiceProvider;
+use crate::provider::Providers;
+
 use std::fs::File;
 use std::io::prelude::*;
 use std::result::Result;
-
-use backend::Backend;
-use platform::platform::Platform;
-use platform::error::Error;
-use provider::Providers;
-use provider::file::FileProvider;
-use provider::service::ServiceProvider;
-use provider::file;
-use provider::service;
-use provider::package;
-use provider::package::PackageProvider;
-use provider::port;
-use provider::port::PortProvider;
 
 #[derive(Clone, Debug)]
 pub struct Ubuntu {
@@ -29,19 +29,18 @@ impl Platform for Ubuntu {
         }
     }
 
-    fn inline_detector(&self) -> Option<Box<Platform>> {
+    fn inline_detector(&self) -> Option<Box<dyn Platform>> {
         let mut file = match File::open("/etc/lsb-release") {
             Err(_) => return None,
             Ok(f) => f,
         };
-
 
         let mut contents = String::new();
         let _ = file.read_to_string(&mut contents);
         self.detect_by_lsb_release(&contents)
     }
 
-    fn shell_detector(&self, b: &Backend) -> Option<Box<Platform>> {
+    fn shell_detector(&self, b: &dyn Backend) -> Option<Box<dyn Platform>> {
         let contents = match b.run_command("cat /etc/lsb-release".into()) {
             Err(_) => return None,
             Ok(f) => f,
@@ -56,21 +55,17 @@ impl Platform for Ubuntu {
             shell: Box::new(file::shell::linux::Linux),
         };
 
-        let r = try!(self.release.parse::<f32>());
+        let r = self.release.parse::<f32>()?;
 
         let service_provider = match r {
-            n if n >= 16.0 => {
-                ServiceProvider {
-                    inline: Box::new(service::inline::systemd::Systemd),
-                    shell: Box::new(service::shell::systemd::Systemd),
-                }
-            }
-            _ => {
-                ServiceProvider {
-                    inline: Box::new(service::inline::null::Null),
-                    shell: Box::new(service::shell::ubuntu_init::UbuntuInit),
-                }
-            }
+            n if n >= 16.0 => ServiceProvider {
+                inline: Box::new(service::inline::systemd::Systemd),
+                shell: Box::new(service::shell::systemd::Systemd),
+            },
+            _ => ServiceProvider {
+                inline: Box::new(service::inline::null::Null),
+                shell: Box::new(service::shell::ubuntu_init::UbuntuInit),
+            },
         };
 
         let package_provider = PackageProvider {
@@ -95,14 +90,14 @@ impl Platform for Ubuntu {
 }
 
 impl Ubuntu {
-    fn detect_by_lsb_release(&self, contents: &str) -> Option<Box<Platform>> {
+    fn detect_by_lsb_release(&self, contents: &str) -> Option<Box<dyn Platform>> {
         let mut lines = contents.lines();
         let line = lines.next().unwrap();
         if line.starts_with("DISTRIB_ID") {
-            let id = line.split("=").nth(1).unwrap().trim();
+            let id = line.split('=').nth(1).unwrap().trim();
             if id == "Ubuntu" {
                 let line = lines.next().unwrap();
-                let release = line.split("=").nth(1).unwrap();
+                let release = line.split('=').nth(1).unwrap();
                 let u = Ubuntu {
                     name: id.to_string(),
                     release: release.to_string(),

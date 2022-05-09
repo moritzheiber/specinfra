@@ -35,6 +35,6 @@ impl Command {
 
 impl<'a> From<&'a str> for Command {
     fn from(s: &str) -> Command {
-        Command::new(s.into())
+        Command::new(s)
     }
 }

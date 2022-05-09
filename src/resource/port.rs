@@ -1,16 +1,16 @@
-use backend::Backend;
-use provider::error;
-use provider::Output;
-use provider::port::PortProvider;
+use crate::backend::Backend;
+use crate::provider::error;
+use crate::provider::port::PortProvider;
+use crate::provider::Output;
 
 pub struct Port<'a> {
     number: usize,
-    backend: &'a Backend,
+    backend: &'a dyn Backend,
     provider: &'a PortProvider,
 }
 
 impl<'a> Port<'a> {
-    pub fn new(n: usize, b: &'a Backend, p: &'a PortProvider) -> Port<'a> {
+    pub fn new(n: usize, b: &'a dyn Backend, p: &'a PortProvider) -> Port<'a> {
         Port {
             number: n,
             backend: b,

@@ -1,9 +1,9 @@
-extern crate uname;
 extern crate libc;
-extern crate users;
 extern crate md5;
-extern crate sha2;
 extern crate nix;
+extern crate sha2;
+extern crate uname;
+extern crate users;
 extern crate version_compare;
 
 use std::ffi::CStr;
@@ -11,29 +11,30 @@ use std::ffi::CStr;
 use libc::c_char;
 
 use backend::Backend;
-use platform::platform::Platform;
-use platform::error::Error;
 use platform::error::DetectError;
+use platform::error::Error;
+use platform::platform::Platform;
+use provider::Providers;
 use resource::file::File;
 use resource::package::Package;
 use resource::port::Port;
 use resource::service::Service;
-use provider::Providers;
 
 pub struct Specinfra<'a> {
-    pub backend: &'a Backend,
-    pub platform: Box<Platform>,
+    pub backend: &'a dyn Backend,
+    pub platform: Box<dyn Platform>,
     pub providers: Box<Providers>,
 }
 
-pub fn new(b: &Backend) -> Result<Specinfra, Error> {
-    let p = try!(b.detect_platform()
-        .ok_or(DetectError { message: "Failed to detect platform".to_string() }));
-    let providers = try!(p.get_providers());
+pub fn new(b: &dyn Backend) -> Result<Specinfra, Error> {
+    let p = b.detect_platform().ok_or(DetectError {
+        message: "Failed to detect platform".to_string(),
+    })?;
+    let providers = p.get_providers()?;
     Ok(Specinfra {
         backend: b,
         platform: p,
-        providers: providers,
+        providers,
     })
 }
 
@@ -109,7 +110,7 @@ pub extern "C" fn specinfra_service(ptr: *const Specinfra, name: *const c_char) 
 }
 
 pub mod backend;
-pub mod platform;
-pub mod resource;
-pub mod provider;
 pub mod error;
+pub mod platform;
+pub mod provider;
+pub mod resource;
